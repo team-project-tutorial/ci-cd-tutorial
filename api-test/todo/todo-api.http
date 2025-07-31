@@ -1,0 +1,21 @@
+### 할일 생성 API
+POST localhost:8080/api/todos
+Content-Type: application/json
+
+{
+  "title": "title",
+  "content": "content"
+}
+
+> {%
+    client.global.set("created_todo_location", response.headers.valueOf("location"))
+    client.log(client.global.get("created_todo_location"))
+%}
+
+
+### 할일 조회 API
+GET localhost:8080{{created_todo_location}}
+
+
+### 할일 목록 조회 API
+GET localhost:8080/api/todos
