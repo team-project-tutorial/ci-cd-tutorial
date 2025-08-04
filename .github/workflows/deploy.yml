@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "Checking files in workspace:"
           ls -al
-          
+
       - name: SCP로 EC2에 jar 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -54,5 +54,5 @@ jobs:
             mv /home/ec2-user/deploy/.env /home/ec2-user/todo-app/.env
             cd /home/ec2-user/deploy
             sudo fuser -k -n tcp 8080 || true
-            nohup java -jar build/libs/ci-cd-tutorial-0.0.1-SNAPSHOT.jar > application-log 2>&1 &
+            nohup java -jar /home/ec2-user/todo-app/app.jar > application-log 2>&1 &
             rm -rf /home/ec2-user/deploy			
