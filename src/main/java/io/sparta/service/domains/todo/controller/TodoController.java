@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import io.sparta.service.domains.todo.controller.dto.CreateTodoRequest;
 import io.sparta.service.domains.todo.controller.dto.TodoResponse;
+import io.sparta.service.domains.todo.controller.dto.UpdateTodoRequest;
 import io.sparta.service.domains.todo.service.TodoService;
 import lombok.RequiredArgsConstructor;
 
@@ -44,5 +46,13 @@ public class TodoController {
 	ResponseEntity<PagedModel<TodoResponse>> getTodos(@PageableDefault Pageable pageable) {
 		PagedModel<TodoResponse> pageResponse = todoService.getTodos(pageable);
 		return ResponseEntity.ok(pageResponse);
+	}
+
+	@PutMapping("{id}")
+	ResponseEntity<TodoResponse> update(
+		@PathVariable("id") Long id,
+		@RequestBody UpdateTodoRequest updateTodoRequest) {
+		TodoResponse todoResponse = todoService.update(id, updateTodoRequest);
+		return ResponseEntity.ok(todoResponse);
 	}
 }
