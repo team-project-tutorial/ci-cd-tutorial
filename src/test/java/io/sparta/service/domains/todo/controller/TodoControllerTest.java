@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.sparta.service.domains.todo.controller.dto.CreateTodoRequest;
 import io.sparta.service.domains.todo.controller.dto.TodoResponse;
+import io.sparta.service.domains.todo.controller.dto.UpdateTodoRequest;
 import io.sparta.service.domains.todo.service.TodoService;
 
 @ActiveProfiles("test")
@@ -47,7 +48,7 @@ class TodoControllerTest {
 	private ObjectMapper objectMapper;
 
 	@Test
-	@DisplayName("[201:CREATED]할일 생성 API")
+	@DisplayName("[POST:201]할일 생성 API")
 	@WithMockUser(username = "1")
 	void create() throws Exception {
 		// Given
@@ -68,7 +69,7 @@ class TodoControllerTest {
 	}
 
 	@Test
-	@DisplayName("[200:OK]특정할일 조회 API")
+	@DisplayName("[GET:200]특정할일 조회 API")
 	void getTodoById() throws Exception {
 		// Given
 		String GET_TODO_URI = "/api/todos/{id}";
@@ -88,7 +89,7 @@ class TodoControllerTest {
 	}
 
 	@Test
-	@DisplayName("[200:OK]할일 목록 조회 API")
+	@DisplayName("[GET:200]할일 목록 조회 API")
 	void getTodo() throws Exception {
 		// Given
 		int size = 10;
@@ -111,7 +112,7 @@ class TodoControllerTest {
 	}
 
 	@Test
-	@DisplayName("[400:Bad Request]할일 목록 조회 API")
+	@DisplayName("[GET:400]할일 목록 조회 API")
 	void throwException_overThanMaxPageSizeRequest() throws Exception {
 		// Given
 		int size = 1002;
@@ -128,6 +129,33 @@ class TodoControllerTest {
 		// Then
 		resultActions.andDo(print())
 			.andExpect(status().isBadRequest())
+		;
+	}
+
+	@Test
+	@DisplayName("[PUT:200] 할일 수정")
+	void update() throws Exception {
+		// Given
+		String PUT_TODO_URI = "/api/todos/{id}";
+		Long id = 1L;
+		UpdateTodoRequest updateTodoRequest = new UpdateTodoRequest(
+			"new title",
+			"new content"
+		);
+		TodoResponse todoResponse = new TodoResponse(1L, "new title", "new content", LocalDateTime.now());
+
+		BDDMockito.given(todoService.update(id, updateTodoRequest)).willReturn(todoResponse);
+
+		// When
+		ResultActions resultActions = mockMvc.perform(put(PUT_TODO_URI, id)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(updateTodoRequest))
+		);
+
+		// Then
+		resultActions.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id").value(id))
 		;
 	}
 

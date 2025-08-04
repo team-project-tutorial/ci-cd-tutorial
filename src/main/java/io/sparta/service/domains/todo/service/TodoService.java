@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.sparta.service.domains.todo.controller.dto.CreateTodoRequest;
 import io.sparta.service.domains.todo.controller.dto.TodoResponse;
+import io.sparta.service.domains.todo.controller.dto.UpdateTodoRequest;
 import io.sparta.service.domains.todo.domain.model.Todo;
 import io.sparta.service.domains.todo.domain.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,14 @@ public class TodoService {
 	public PagedModel<TodoResponse> getTodos(Pageable pageable) {
 		Page<TodoResponse> pageResponse = todoRepository.findAll(pageable).map(TodoResponse::from);
 		return new PagedModel<>(pageResponse);
+	}
+
+	@Transactional
+	public TodoResponse update(Long id, UpdateTodoRequest updateTodoRequest) {
+		Todo todo = todoRepository.findById(id)
+			.orElseThrow(() -> new RuntimeException("요청에 해당하는 할일을 찾을 수 없습니다."));
+
+		todo.update(updateTodoRequest.title(), updateTodoRequest.content());
+		return TodoResponse.from(todo);
 	}
 }
