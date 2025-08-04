@@ -27,6 +27,11 @@ jobs:
       - name: ENV 파일 생성
         run: echo "${{ secrets.ENV_PROPERTIES }}" > .env
 
+      - name: Check generated files
+        run: |
+          echo "Checking files in workspace:"
+          ls -al
+          
       - name: SCP로 EC2에 jar 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
