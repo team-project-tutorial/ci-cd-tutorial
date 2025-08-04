@@ -1,5 +1,5 @@
 ### 할일 생성 API
-POST localhost:8080/api/todos
+POST {{endpoint}}/api/todos
 Content-Type: application/json
 
 {
@@ -14,8 +14,8 @@ Content-Type: application/json
 
 
 ### 할일 조회 API
-GET localhost:8080{{created_todo_location}}
+GET {{endpoint}}{{created_todo_location}}
 
 
 ### 할일 목록 조회 API
-GET localhost:8080/api/todos
+GET {{endpoint}}/api/todos
