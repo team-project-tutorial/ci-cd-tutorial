@@ -22,15 +22,15 @@ jobs:
         run: ./gradlew clean build
 
       - name: Archive 파일명 가공
-        run: mv ./build/libs/*SNAPSHOT.jar ./app.jar
+        run: mv ./build/libs/*SNAPSHOT.jar ./todo-app/app.jar
 
       - name: ENV 파일 생성
-        run: echo "${{ secrets.ENV_PROPERTIES }}" > .env
+        run: echo "${{ secrets.ENV_PROPERTIES }}" > ./todo-app/.env
 
       - name: Check generated files
         run: |
           echo "Checking files in workspace:"
-          ls -al
+          ls ./todo-app -al
 
       - name: SCP로 EC2에 jar 파일 전송
         uses: appleboy/scp-action@v0.1.7
@@ -38,7 +38,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "app.jar .env"
+          source: todo-app
           target: /home/ec2-user/deploy
 
       - name: SSH로 EC2에 접속 후 재시작
