@@ -1,0 +1,53 @@
+name: ec2 deploy
+
+on:
+  push:
+    branches:
+      - ci
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github repository checkout
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle 빌드
+        run: ./gradlew clean build
+
+      - name: Archive 파일명 가공
+        run: mv ./build/libs/*SNAPSHOT.jar ./app.jar
+
+      - name: ENV 파일 생성
+        run: echo "${{ secrets.ENV_PROPERTIES }}" > .env
+
+      - name: SCP로 EC2에 jar 파일 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "app.jar .env"
+          target: /home/ec2-user/deploy
+
+      - name: SSH로 EC2에 접속 후 재시작
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            rm -rf /home/ec2-user/todo-app
+            mkdir /home/ec2-user/todo-app
+            mv /home/ec2-user/deploy/app.jar /home/ec2-user/todo-app/app.jar
+            mv /home/ec2-user/deploy/.env /home/ec2-user/todo-app/.env
+            cd /home/ec2-user/deploy
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -jar build/libs/ci-cd-tutorial-0.0.1-SNAPSHOT.jar > application-log 2>&1 &
+            rm -rf /home/ec2-user/deploy			
