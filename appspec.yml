@@ -1,0 +1,20 @@
+version: 0.0
+os: linux
+
+# 배포 파일 이동 경로 설정
+files:
+  - sources: / # S3에 저장된 배포 파일 경로 ('/'는 해당경로의 전체 파일)
+    destination: /home/ec2-user/board-app # EC2에서 S3의 배포 파일을 다운로드 할 경로
+
+# CodeDeploy가 사용할 EC2 사용자 권한 지정
+permissions:
+  - object: /
+    owner: ec2-user
+    group: ec2-user
+
+# CodeDeploy가 `특정 시점에 실행할 행동`(hook) 설정
+hooks:
+  ApplicationStart:
+    - location: scripts/deploy.sh
+      timeout: 60
+      runas: ec2-user # 해당 행동을 실행할 사용자 권한 지정
